@@ -29,7 +29,13 @@
 		 :path (make-pathname :directory (pathname-directory ql-setup))))))
 
 (ecase *cl-webserver*
-  (hunchentoot (ql:quickload "hunchentoot"))
+  (hunchentoot (ql:quickload "hunchentoot")
+               (let* ((asds (directory (make-pathname :directory  (append *cache-dir* '( "repos" :wild-inferiors))
+						   :name :wild
+						   :type "asd")))
+		   (directories (remove-duplicates (mapcar #'pathname-directory asds) :test #'equal)))
+	      (dolist (d directories)
+		(push (make-pathname :directory d) asdf:*central-registry*))))
   (aserve (progn
             (asdf:clear-system "acl-compat")
 	    ;;; Load all .asd files in the repos subdirectory.  The compile script puts
